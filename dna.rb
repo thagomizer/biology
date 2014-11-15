@@ -1,4 +1,4 @@
-require './nucleic_acid'
+require_relative 'nucleic_acid'
 
 class DNA
   attr_accessor :str
