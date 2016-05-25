@@ -37,7 +37,7 @@ require '../fasta'
 dnas = Fasta.new("lcsm.txt").read_dnas.values.map(&:str).sort_by(&:length)
 
 s = dnas.shift.split('')
-x
+
 max_found = ""
 
 # Generate all the substrings

@@ -1,0 +1,138 @@
+1. Read the problem and background
+
+2. Verify that you can read the data provided
+The provided the example was "2 2 2". This would make it hard to verify that I 
+got the correct variables assigned to the correct values. I used 1 2 3 in my 
+file instead. I then wrote the code to put each of these in its own variable 
+and printed out each variable to ensure I had the write values in the write places.
+#+begin_src ruby
+dominant, hetero, recessive = File.read("iprb.txt").chomp.split(' ').map(&:to_i)
+
+puts "Dominant #{dominant}"
+puts "Heterozygous #{hetero}"
+puts "Recessive #{recessive}
+#+end_src
+
+3. Ponder and devise a strategy
+My first strategy was to calculate how many ways there were to have the at least 
+one dominant allele. Here's some basic thoughts on that
+
+From the background given I know that if one parent has the dominant allele the 
+the resulting organism must have the dominant allele.
+Probability of one parent have the dominant allel is 
+
+dominant     not-dominant    dominant
+--------  + ------------- * ----------
+ total         total         total - 1
+
+
+Then I remembered that since there are fewer ways get two recessive alleles I 
+should calculate that instead and then subtract the result from one. (Basic 
+law of probabilty).
+
+Maff:
+Probability of two recessive parents mating:
+recessive    recessive - 1
+---------  * -------------
+ total        total - 1
+
+Probability of two heterozygous parents mating:
+heterozygous     heterozygous - 1
+------------  * ------------------
+  total           total - 1
+
+Punnet square for heterozygous mating
+
+     |   | Y  | y  |
+     |---+----+----|
+     | Y | YY | Yy |
+     | y | Yy | yy |
+
+Only 1/4 of those will be recessive so we take the probability of two 
+heterozygous mating and multiply it by 1/4.
+
+heterozygous     heterozygous - 1      1
+------------  * ------------------ * -----
+  total           total - 1            4
+
+Finally the probability of a heterozygous and a recessive organism mating:
+
+heterozygous     recessive        recessive     heterozygous
+------------  * ------------  + ------------ * --------------
+  total           total - 1       total          total - 1
+
+
+Punnet square for heterozygous & recessive mating
+
+     |   | Y  | y  |
+     |---+----+----|
+     | y | Yy | yy |
+     | y | Yy | yy |
+
+In this case half the offspring have two recessive alleles so multiply the 
+probability by 1/2.
+
+4. Write the code
+First thing I realized was that we need floats so I had to change the import 
+code slightly. I changed the to_i to a to_f.
+
+#+begin_src ruby
+dominant, hetero, recessive = File.read("iprb.txt").chomp.split(' ').map(&:to_f)
+#+end_src
+
+All my calculations require total so do that once
+
+#+begin_src ruby
+total = dominant + hetero + recessive
+#+end_src
+
+Now calculate the probability of two recessive organisms mating:
+
+#+begin_src ruby
+r_r = (recessive / total) * ((recessive - 1) / (total - 1))
+#+end_src
+
+Now heterozygous organisms mating: 
+#+begin_src ruby
+h_h = (hetero / total) * ((hetero - 1) / (total - 1))
+#+end_src
+
+Now the hetero + recessive matings:
+#+begin_src ruby
+h_r = (hetero / total) * (recessive / (total - 1)) +
+  (recessive / total) * (hetero / (total - 1))
+#+end_src
+
+Now I incorporate the fractions from the punnet squares:
+#+begin_src ruby
+recessive_total = r_r + h_h * 1/4 + h_r * 1/2
+#+end_src
+        
+This is the probability of a recessive organism. The problem asked for the 
+probability of a dominant organism so I take 1 - recessive_total
+#+begin_src ruby
+puts 1 - recessive_total
+#+end_src
+
+All together:
+#+begin_src ruby
+dominant, hetero, recessive = File.read("iprb.txt").chomp.split(' ').map(&:to_f)
+
+total = dominant + hetero + recessive
+
+r_r = (recessive / total) * ((recessive - 1) / (total - 1))
+h_h = (hetero / total) * ((hetero - 1) / (total - 1))
+h_r = (hetero / total) * (recessive / (total - 1)) +
+  (recessive / total) * (hetero / (total - 1))
+
+recessive_total = r_r + h_h * 1/4 + h_r * 1/2
+puts 1 - recessive_total
+1 - recessive_total
+#+end_src
+
+#+RESULTS:
+: 0.7833333333333333
+
+This matches the expected result. 
+
+5. Download the real data set
