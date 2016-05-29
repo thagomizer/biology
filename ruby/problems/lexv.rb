@@ -59,37 +59,36 @@
 # AAD
 # AAN
 
-AAAf, size = File.read("lexv.txt").split("\n")
-alphabet = alphabet.split(" ")
-size = size.to_i
+require 'pp'
+require 'pry'
+
+alphabet, size = File.read("lexv.txt").split("\n")
+size           = size.to_i
+alphabet       = alphabet.split(" ")
+$ordering       = Hash[alphabet.zip(0..(alphabet.size))]
+$ordering[nil]  = -1
+
+def lexo x, y
+  max = [x.length, y.length].max
+  (0..max).each do |i|
+    case
+    when x[i] == y[i]
+      next
+    when $ordering[x[i]] > $ordering[y[i]]
+      return 1
+    when $ordering[x[i]] < $ordering[y[i]]
+      return -1
+    end
+  end
+  0
+end
 
 results = []
 
-size.times do |k|
-  results += alphabet.repeated_permutation(k + 1).to_a
+(1..size).each do |n|
+  results += alphabet.repeated_permutation(n).to_a
 end
 
-results.uniq
+results = results.sort { |x, y| lexo(x, y) }
 
-@lex_values = Hash[alphabet.zip((0...size).to_a)]
-
-def lex_sorter x, y
-  return (-1 * lex_sorter(y, x)) if y.length > x.length
-
-  x.length.times do |i|
-    c = @lex_values[x[i]] <=> @lex_values[y[i]]
-    case c
-    when 0
-      next
-    when nil
-      return 1
-    else
-      return c
-    end
-  end
-
-  return 0
-end
-
-
-puts results.sort { |x, y| lex_sorter(x, y) }.map(&:join)
+puts results.map(&:join)
