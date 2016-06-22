@@ -26,7 +26,6 @@
 # 5 4 2
 
 require 'pp'
-require 'pry'
 
 Struct.new("Entry", :asc_len, :asc_data, :dsc_len, :dsc_data)
 

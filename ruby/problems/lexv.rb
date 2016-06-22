@@ -60,7 +60,6 @@
 # AAN
 
 require 'pp'
-require 'pry'
 
 alphabet, size = File.read("lexv.txt").split("\n")
 size           = size.to_i
